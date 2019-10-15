@@ -21,26 +21,20 @@ namespace RebootIT.TimesheetApp.Controllers
         // GET: Timesheets
         public async Task<IActionResult> Index(int? id)
         {
-            if (id == null)
+            var timesheetDbContext = _context.Timesheets
+                .Include(t => t.Client)
+                .Include(t => t.Location)
+                .Include(t => t.Staff)
+                .AsQueryable();
+
+            if (id.HasValue)
             {
-                var timesheetDbContext = _context.Timesheets
-                    .Include(t => t.Client)
-                    .Include(t => t.Location)
-                    .Include(t => t.Staff);
-
-
-                return View(await timesheetDbContext.ToListAsync());
+                timesheetDbContext = timesheetDbContext
+                    .Where(t => t.StaffId == id.Value);
             }
-            else
-            {
-                var timesheetDbContext = _context.Timesheets
-                    .Include(t => t.Client)
-                    .Include(t => t.Location)
-                    .Include(t => t.Staff);
 
+            return View(await timesheetDbContext.ToListAsync());
 
-                return View(await timesheetDbContext.ToListAsync());
-            }
         }
 
         // GET: Timesheets/Details/5
